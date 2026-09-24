@@ -118,14 +118,39 @@ export default function RiwayatTransaksiPage() {
   return (
     <div className="space-y-4 pt-1 animate-in fade-in duration-200">
       {/* Top Header */}
-      <div>
-        <h1 className="text-xl font-black text-gray-900 flex items-center gap-2">
-          <History className="w-5 h-5 text-cemiloo-500" />
-          Riwayat Transaksi
-        </h1>
-        <p className="text-xs text-gray-500">
-          Semua catatan penjualan & pengeluaran kas. Menghapus transaksi penjualan akan mengembalikan stok otomatis.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-black text-gray-900 flex items-center gap-2">
+            <History className="w-5 h-5 text-cemiloo-500" />
+            Riwayat Transaksi
+          </h1>
+          <p className="text-xs text-gray-500">
+            Semua catatan penjualan & pengeluaran kas. Menghapus transaksi penjualan akan mengembalikan stok otomatis.
+          </p>
+        </div>
+
+        {combinedList.length > 0 && (
+          <button
+            onClick={async () => {
+              if (
+                window.confirm(
+                  'PERHATIAN: Apakah Anda yakin ingin mengosongkan seluruh riwayat penjualan & pengeluaran ke 0? Daftar produk menu tidak akan terhapus.'
+                )
+              ) {
+                try {
+                  await DataService.resetAllFinancialDataToZero();
+                  success('Seluruh data transaksi & pengeluaran berhasil di-reset ke 0.');
+                  loadData();
+                } catch (err: any) {
+                  error(err.message || 'Gagal mereset data');
+                }
+              }
+            }}
+            className="btn-touch px-3 py-1.5 text-xs font-bold rounded-xl bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition active:scale-95 shrink-0"
+          >
+            Reset Semua Data ke Nol
+          </button>
+        )}
       </div>
 
       {/* Filter Tabs & Search */}

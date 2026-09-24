@@ -26,6 +26,17 @@ const STORAGE_KEYS = {
   EXPENSES: 'cemiloo_expenses',
 };
 
+const CLEAN_FLAG = 'cemiloo_clean_reset_zero_v1';
+
+// Auto-reset existing financial transactions & expenses to zero on first load
+if (typeof window !== 'undefined') {
+  if (!localStorage.getItem(CLEAN_FLAG)) {
+    localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
+    localStorage.removeItem(STORAGE_KEYS.EXPENSES);
+    localStorage.setItem(CLEAN_FLAG, 'true');
+  }
+}
+
 // Local storage helpers
 function getLocal<T>(key: string, defaultVal: T): T {
   if (typeof window === 'undefined') return defaultVal;
@@ -566,4 +577,15 @@ export const DataService = {
       };
     });
   },
+
+  async resetAllFinancialDataToZero(): Promise<void> {
+    if (isSupabaseConfigured && supabase) {
+      await supabase.from('transaction_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('expenses').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    }
+    setLocal(STORAGE_KEYS.TRANSACTIONS, []);
+    setLocal(STORAGE_KEYS.EXPENSES, []);
+  },
 };
+
