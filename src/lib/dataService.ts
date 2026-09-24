@@ -26,30 +26,21 @@ const STORAGE_KEYS = {
   EXPENSES: 'cemiloo_expenses',
 };
 
-const CLEAN_FLAG = 'cemiloo_clean_reset_zero_v4';
+const CLEAN_FLAG = 'cemiloo_clean_reset_pure_static_v10';
 
-// Auto-reset existing financial transactions & expenses, and reset products stock to 0
+// Auto-reset all data to completely zero and empty menus as requested
 if (typeof window !== 'undefined') {
   if (!localStorage.getItem(CLEAN_FLAG)) {
+    // Hapus total semua cache produk & kategori bawaan demo Supabase
     localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
     localStorage.removeItem(STORAGE_KEYS.EXPENSES);
-    localStorage.removeItem(STORAGE_KEYS.PRODUCTS); // Forces products to initialize with stok = 0
+    localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
+    localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify([]));
     localStorage.setItem(CLEAN_FLAG, 'true');
-
-    // Also auto-reset Supabase table stock & transactions to zero if configured
-    if (isSupabaseConfigured && supabase) {
-      const client = supabase;
-      setTimeout(async () => {
-        try {
-          await client.from('products').update({ stok: 0 }).neq('id', '00000000-0000-0000-0000-000000000000');
-          await client.from('transaction_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-          await client.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-          await client.from('expenses').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-        } catch (err) {
-          console.warn('Auto reset zero Supabase attempt:', err);
-        }
-      }, 300);
-    }
   }
 }
 
@@ -58,7 +49,7 @@ function getLocal<T>(key: string, defaultVal: T): T {
   if (typeof window === 'undefined') return defaultVal;
   try {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultVal;
+    return item !== null ? JSON.parse(item) : defaultVal;
   } catch {
     return defaultVal;
   }
@@ -84,8 +75,15 @@ export const DataService = {
   // ----------------------------------------------------
   async getCategories(): Promise<Category[]> {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from('categories').select('*').order('name');
-      if (!error && data && data.length > 0) return data;
+      try {
+        const { data, error } = await supabase.from('categories').select('*').order('name');
+        if (!error && data) {
+          setLocal(STORAGE_KEYS.CATEGORIES, data);
+          return data;
+        }
+      } catch (err) {
+        console.warn('Supabase getCategories error, fallback to local:', err);
+      }
     }
     return getLocal<Category[]>(STORAGE_KEYS.CATEGORIES, initialCategories);
   },
@@ -121,19 +119,22 @@ export const DataService = {
   // ----------------------------------------------------
   async getProducts(): Promise<Product[]> {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*, category:categories(*)')
-        .order('name');
-      if (!error && data && data.length > 0) return data;
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*, category:categories(*)')
+          .order('name');
+        if (!error && data) {
+          setLocal(STORAGE_KEYS.PRODUCTS, data);
+          return data;
+        }
+      } catch (err) {
+        console.warn('Supabase getProducts error, fallback to local:', err);
+      }
     }
     const categories = await this.getCategories();
-    let products = getLocal<Product[]>(STORAGE_KEYS.PRODUCTS, initialProducts);
-    if (!products || products.length === 0) {
-      products = initialProducts;
-      setLocal(STORAGE_KEYS.PRODUCTS, products);
-    }
-    return products.map(p => ({
+    const products = getLocal<Product[]>(STORAGE_KEYS.PRODUCTS, initialProducts);
+    return (products || []).map(p => ({
       ...p,
       category: categories.find(c => c.id === p.category_id),
     }));
@@ -142,25 +143,35 @@ export const DataService = {
   async addProduct(product: Omit<Product, 'id' | 'created_at'>): Promise<Product> {
     const newProduct: Product = {
       ...product,
+      category_id: product.category_id || null,
       id: typeof crypto !== 'undefined' ? crypto.randomUUID() : 'prod-' + Date.now(),
       created_at: new Date().toISOString(),
     };
 
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([{
-          name: newProduct.name,
-          category_id: newProduct.category_id,
-          harga_jual: newProduct.harga_jual,
-          harga_modal: newProduct.harga_modal,
-          stok: newProduct.stok,
-          stok_minimum: newProduct.stok_minimum,
-          is_active: newProduct.is_active,
-        }])
-        .select()
-        .single();
-      if (!error && data) return data;
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .insert([{
+            name: newProduct.name,
+            category_id: newProduct.category_id || null,
+            harga_jual: newProduct.harga_jual,
+            harga_modal: newProduct.harga_modal,
+            stok: newProduct.stok,
+            stok_minimum: newProduct.stok_minimum,
+            is_active: newProduct.is_active,
+          }])
+          .select('*, category:categories(*)')
+          .single();
+        if (!error && data) {
+          const current = await this.getProducts();
+          const updated = [data, ...current.filter(p => p.id !== data.id)];
+          setLocal(STORAGE_KEYS.PRODUCTS, updated);
+          return data;
+        }
+      } catch (err) {
+        console.warn('Supabase addProduct error, falling back to local:', err);
+      }
     }
 
     const current = await this.getProducts();
@@ -171,13 +182,31 @@ export const DataService = {
 
   async updateProduct(id: string, updates: Partial<Product>): Promise<Product> {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('products')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      if (!error && data) return data;
+      try {
+        const payload: any = { ...updates };
+        if ('category_id' in payload && !payload.category_id) {
+          payload.category_id = null;
+        }
+        delete payload.category;
+
+        const { data, error } = await supabase
+          .from('products')
+          .update(payload)
+          .eq('id', id)
+          .select('*, category:categories(*)')
+          .single();
+        if (!error && data) {
+          const current = await this.getProducts();
+          const index = current.findIndex(p => p.id === id);
+          if (index !== -1) {
+            current[index] = { ...current[index], ...data };
+            setLocal(STORAGE_KEYS.PRODUCTS, current);
+          }
+          return data;
+        }
+      } catch (err) {
+        console.warn('Supabase updateProduct error, falling back to local:', err);
+      }
     }
 
     const current = await this.getProducts();
@@ -600,14 +629,20 @@ export const DataService = {
 
   async resetAllFinancialDataToZero(): Promise<void> {
     if (isSupabaseConfigured && supabase) {
-      await supabase.from('transaction_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('expenses').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      await supabase.from('products').update({ stok: 0 }).neq('id', '00000000-0000-0000-0000-000000000000');
+      try {
+        await supabase.from('transaction_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        await supabase.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        await supabase.from('expenses').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        await supabase.from('products').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        await supabase.from('categories').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      } catch (err) {
+        console.warn('Supabase reset failed:', err);
+      }
     }
     setLocal(STORAGE_KEYS.TRANSACTIONS, []);
     setLocal(STORAGE_KEYS.EXPENSES, []);
-    setLocal(STORAGE_KEYS.PRODUCTS, initialProducts);
+    setLocal(STORAGE_KEYS.PRODUCTS, []);
+    setLocal(STORAGE_KEYS.CATEGORIES, []);
   },
 
   // ----------------------------------------------------

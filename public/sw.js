@@ -34,8 +34,12 @@ self.addEventListener('fetch', (event) => {
   // Hanya tangani GET requests
   if (event.request.method !== 'GET') return;
 
-  // Lewati requests ke Supabase API atau ekstensi Chrome
-  if (event.request.url.includes('/rest/v1/') || event.request.url.includes('chrome-extension')) {
+  // Lewati requests internal Next.js (_next), Supabase API, atau ekstensi Chrome
+  if (
+    event.request.url.includes('/_next/') ||
+    event.request.url.includes('/rest/v1/') ||
+    event.request.url.includes('chrome-extension')
+  ) {
     return;
   }
 

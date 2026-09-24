@@ -302,10 +302,26 @@ export default function ProdukPage() {
 
       {/* Product List Cards */}
       {filteredProducts.length === 0 ? (
-        <div className="bg-white rounded-2xl p-8 text-center border border-surface-border shadow-sm">
-          <Package className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-          <p className="text-sm font-bold text-gray-700">Tidak ada produk ditemukan</p>
-          <p className="text-xs text-gray-400 mt-1">Coba sesuaikan kata kunci pencarian atau kategori.</p>
+        <div className="bg-white rounded-2xl p-8 sm:p-12 text-center border border-surface-border shadow-sm">
+          <div className="w-14 h-14 bg-sky-50 text-cemiloo-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Package className="w-7 h-7" />
+          </div>
+          <h3 className="text-base font-bold text-gray-800">
+            {products.length === 0 ? 'Belum Ada Menu Produk' : 'Produk Tidak Ditemukan'}
+          </h3>
+          <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+            {products.length === 0
+              ? 'Daftar menu produk saat ini kosong. Anda dapat menambahkan produk jajanan atau minuman secara manual dari nol.'
+              : 'Tidak ada produk yang cocok dengan pencarian atau filter yang dipilih.'}
+          </p>
+          {products.length === 0 && (
+            <button
+              onClick={openAddModal}
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-cemiloo-500 hover:bg-cemiloo-600 text-white rounded-xl text-xs font-bold shadow-md active:scale-95 transition"
+            >
+              <Plus className="w-4 h-4" /> Tambah Menu Pertama
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

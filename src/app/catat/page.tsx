@@ -293,68 +293,90 @@ export default function CatatPenjualanPage() {
           </div>
 
           {/* Product Grid Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-            {filteredProducts.map((p) => {
-              const inCartQty = cart
-                .filter((item) => item.product.id === p.id)
-                .reduce((s, it) => s + it.jumlah, 0);
-              const remainingStock = p.stok - inCartQty;
-              const isOutOfStock = remainingStock <= 0;
-
-              return (
-                <div
-                  key={p.id}
-                  className={`bg-white rounded-2xl p-2.5 border transition-all flex flex-col justify-between shadow-card relative ${
-                    isOutOfStock
-                      ? 'opacity-50 border-gray-200 bg-gray-50'
-                      : 'border-surface-border hover:border-sky-300'
-                  }`}
+          {filteredProducts.length === 0 ? (
+            <div className="bg-white rounded-2xl p-8 text-center border border-surface-border shadow-sm">
+              <ShoppingBag className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+              <p className="text-sm font-bold text-gray-700">
+                {products.length === 0 ? 'Belum Ada Menu Jajanan' : 'Menu Tidak Ditemukan'}
+              </p>
+              <p className="text-xs text-gray-400 mt-1 mb-3">
+                {products.length === 0
+                  ? 'Silakan tambahkan menu produk terlebih dahulu di halaman Produk.'
+                  : 'Coba sesuaikan kata kunci pencarian.'}
+              </p>
+              {products.length === 0 && (
+                <a
+                  href="/produk"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-cemiloo-500 hover:bg-cemiloo-600 text-white rounded-xl text-xs font-bold shadow-sm transition"
                 >
-                  {/* Cart count badge */}
-                  {inCartQty > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-cemiloo-600 text-white font-black text-xs flex items-center justify-center shadow-md">
-                      {inCartQty}
-                    </span>
-                  )}
+                  <Plus className="w-4 h-4" /> Tambah Menu Sekarang
+                </a>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {filteredProducts.map((p) => {
+                const inCartQty = cart
+                  .filter((item) => item.product.id === p.id)
+                  .reduce((s, it) => s + it.jumlah, 0);
+                const remainingStock = p.stok - inCartQty;
+                const isOutOfStock = remainingStock <= 0;
 
-                  <div>
-                    <h4 className="text-xs font-bold text-gray-900 leading-snug line-clamp-2">
-                      {p.name}
-                    </h4>
-                    <p className="text-xs font-extrabold text-cemiloo-600 mt-1">
-                      {formatRupiah(p.harga_jual)}
-                    </p>
+                return (
+                  <div
+                    key={p.id}
+                    className={`bg-white rounded-2xl p-2.5 border transition-all flex flex-col justify-between shadow-card relative ${
+                      isOutOfStock
+                        ? 'opacity-50 border-gray-200 bg-gray-50'
+                        : 'border-surface-border hover:border-sky-300'
+                    }`}
+                  >
+                    {/* Cart count badge */}
+                    {inCartQty > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-cemiloo-600 text-white font-black text-xs flex items-center justify-center shadow-md">
+                        {inCartQty}
+                      </span>
+                    )}
+
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-900 leading-snug line-clamp-2">
+                        {p.name}
+                      </h4>
+                      <p className="text-xs font-extrabold text-cemiloo-600 mt-1">
+                        {formatRupiah(p.harga_jual)}
+                      </p>
+                    </div>
+
+                    <div className="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between">
+                      <span
+                        className={`text-[10px] font-semibold ${
+                          isOutOfStock
+                            ? 'text-rose-600 font-bold'
+                            : remainingStock <= 5
+                            ? 'text-amber-600'
+                            : 'text-gray-400'
+                        }`}
+                      >
+                        {isOutOfStock ? 'Habis' : `Sisa ${remainingStock}`}
+                      </span>
+
+                      <button
+                        disabled={isOutOfStock}
+                        onClick={() => addToCart(p)}
+                        className={`btn-touch px-2.5 py-1 text-xs font-bold rounded-xl transition ${
+                          isOutOfStock
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-sky-500 hover:bg-sky-600 text-white shadow-sm active:scale-90'
+                        }`}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between">
-                    <span
-                      className={`text-[10px] font-semibold ${
-                        isOutOfStock
-                          ? 'text-rose-600 font-bold'
-                          : remainingStock <= 5
-                          ? 'text-amber-600'
-                          : 'text-gray-400'
-                      }`}
-                    >
-                      {isOutOfStock ? 'Habis' : `Sisa ${remainingStock}`}
-                    </span>
-
-                    <button
-                      disabled={isOutOfStock}
-                      onClick={() => addToCart(p)}
-                      className={`btn-touch px-2.5 py-1 text-xs font-bold rounded-xl transition ${
-                        isOutOfStock
-                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                          : 'bg-sky-500 hover:bg-sky-600 text-white shadow-sm active:scale-90'
-                      }`}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* RIGHT COLUMN: Keranjang Belanja / Cart (5 cols on lg) */}
