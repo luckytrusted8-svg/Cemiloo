@@ -16,7 +16,7 @@ import {
   initialExpenseCategories,
   initialTransactions,
   initialExpenses,
-} from './mockData';
+} from './masterData';
 
 const STORAGE_KEYS = {
   CATEGORIES: 'cemiloo_categories',
@@ -26,7 +26,7 @@ const STORAGE_KEYS = {
   EXPENSES: 'cemiloo_expenses',
 };
 
-const CLEAN_FLAG = 'cemiloo_clean_reset_zero_v1';
+const CLEAN_FLAG = 'cemiloo_clean_reset_zero_v2';
 
 // Auto-reset existing financial transactions & expenses to zero on first load
 if (typeof window !== 'undefined') {
@@ -69,7 +69,7 @@ export const DataService = {
   async getCategories(): Promise<Category[]> {
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase.from('categories').select('*').order('name');
-      if (!error && data) return data;
+      if (!error && data && data.length > 0) return data;
     }
     return getLocal<Category[]>(STORAGE_KEYS.CATEGORIES, initialCategories);
   },
@@ -109,10 +109,14 @@ export const DataService = {
         .from('products')
         .select('*, category:categories(*)')
         .order('name');
-      if (!error && data) return data;
+      if (!error && data && data.length > 0) return data;
     }
     const categories = await this.getCategories();
-    const products = getLocal<Product[]>(STORAGE_KEYS.PRODUCTS, initialProducts);
+    let products = getLocal<Product[]>(STORAGE_KEYS.PRODUCTS, initialProducts);
+    if (!products || products.length === 0) {
+      products = initialProducts;
+      setLocal(STORAGE_KEYS.PRODUCTS, products);
+    }
     return products.map(p => ({
       ...p,
       category: categories.find(c => c.id === p.category_id),
@@ -346,7 +350,7 @@ export const DataService = {
   async getExpenseCategories(): Promise<ExpenseCategory[]> {
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase.from('expense_categories').select('*').order('name');
-      if (!error && data) return data;
+      if (!error && data && data.length > 0) return data;
     }
     return getLocal<ExpenseCategory[]>(STORAGE_KEYS.EXP_CATEGORIES, initialExpenseCategories);
   },
