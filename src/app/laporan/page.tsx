@@ -13,13 +13,12 @@ import {
   Search,
   RotateCcw,
   AlertTriangle,
-  FileDown,
 } from 'lucide-react';
 import { DataService } from '@/lib/dataService';
 import { Transaction, Expense, ProductMargin } from '@/types/database';
 import { formatRupiah, formatTanggal, exportToCSV } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
-import { exportBeautifulExcelReport, exportEmptyTemplateExcel } from '@/lib/excelExport';
+import { exportBeautifulExcelReport } from '@/lib/excelExport';
 
 export default function LaporanPage() {
   const { success, error } = useToast();
@@ -124,11 +123,6 @@ export default function LaporanPage() {
     success('Laporan Excel profesional (.xls) berhasil di-download!');
   };
 
-  const handleExportTemplate = () => {
-    exportEmptyTemplateExcel(margins);
-    success('Template Laporan Kosong (.xls) siap diisi berhasil di-download!');
-  };
-
   const [showResetModal, setShowResetModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
@@ -221,14 +215,6 @@ export default function LaporanPage() {
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 Export Excel (.xls)
-              </button>
-              <button
-                onClick={handleExportTemplate}
-                className="btn-touch px-3 py-2 text-xs font-bold rounded-xl bg-cemiloo-50 border border-cemiloo-200 text-cemiloo-700 hover:bg-cemiloo-100 shadow-sm flex items-center gap-1.5 active:scale-95 transition"
-                title="Download template kosong Excel siap pakai (.xls)"
-              >
-                <FileDown className="w-3.5 h-3.5" />
-                Template Kosong (.xls)
               </button>
               <button
                 onClick={handleExportTransactionsCSV}
