@@ -14,14 +14,17 @@ import {
   Clock,
   Sparkles,
   Package,
+  Download,
 } from 'lucide-react';
 import { DataService } from '@/lib/dataService';
 import { formatRupiah } from '@/lib/utils';
 import { DashboardSummary, ChartDayData, Product } from '@/types/database';
 import { useToast } from '@/context/ToastContext';
+import DownloadAppModal from '@/components/DownloadAppModal';
 
 export default function DashboardPage() {
   const { success, error } = useToast();
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [period, setPeriod] = useState<'hari_ini' | 'minggu_ini' | 'bulan_ini'>('hari_ini');
   const [summary, setSummary] = useState<DashboardSummary>({
     pemasukan: 0,
@@ -95,6 +98,14 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsDownloadModalOpen(true)}
+            className="flex-1 sm:flex-none btn-touch px-3.5 py-2 bg-white/20 hover:bg-white/30 text-white font-bold text-xs shadow rounded-xl active:scale-95 transition flex items-center justify-center gap-1.5"
+            title="Download atau Pasang Aplikasi dari Chrome"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Download App
+          </button>
           <Link
             href="/catat"
             className="flex-1 sm:flex-none btn-touch px-4 py-2 bg-white text-cemiloo-700 hover:bg-sky-50 font-bold text-sm shadow rounded-xl active:scale-95"
@@ -112,6 +123,11 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
+
+      <DownloadAppModal
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+      />
 
       {/* Period Filter Toggle */}
       <div className="flex items-center justify-between bg-white p-1.5 rounded-2xl border border-surface-border shadow-sm">

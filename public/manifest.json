@@ -1,12 +1,15 @@
 {
+  "id": "/",
   "name": "Cemiloo - Catat Keuangan & Kasir",
   "short_name": "Cemiloo",
-  "description": "Aplikasi Catat Keuangan & POS Jajanan Cemiloo",
+  "description": "Aplikasi Kasir POS dan Pencatatan Keuangan Resmi Cemiloo. Cepat, akurat, dan bisa diinstal langsung di Laptop/PC dan HP.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0ea5e9",
-  "orientation": "portrait-primary",
+  "orientation": "any",
+  "categories": ["business", "finance", "productivity", "shopping"],
   "icons": [
     {
       "src": "/assets/cemiloo-logo.png",
@@ -19,6 +22,31 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Kasir POS",
+      "short_name": "Kasir",
+      "description": "Buka kasir penjualan Cemiloo cepat",
+      "url": "/catat",
+      "icons": [{ "src": "/assets/cemiloo-logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Manajemen Produk",
+      "short_name": "Produk",
+      "description": "Kelola menu dan stok jajanan",
+      "url": "/produk",
+      "icons": [{ "src": "/assets/cemiloo-logo.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/cemiloo-menu.jpg",
+      "sizes": "680x1000",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Menu Cemiloo Lengkap"
     }
   ]
 }
