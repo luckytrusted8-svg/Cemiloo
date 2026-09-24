@@ -20,7 +20,7 @@ import {
 import confetti from 'canvas-confetti';
 import { DataService } from '@/lib/dataService';
 import { Product, Category, Transaction } from '@/types/database';
-import { formatRupiah, formatTanggalLengkap } from '@/lib/utils';
+import { formatRupiah, formatTanggalLengkap, formatRupiahInput, parseRupiahInput } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 
 interface CartItem {
@@ -561,11 +561,11 @@ export default function CatatPenjualanPage() {
                     Uang Diterima dari Pelanggan
                   </label>
                   <input
-                    type="number"
-                    min={0}
-                    step={1000}
-                    value={cashAmount}
-                    onChange={(e) => setCashAmount(Number(e.target.value))}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={formatRupiahInput(cashAmount)}
+                    onChange={(e) => setCashAmount(parseRupiahInput(e.target.value))}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-surface-border rounded-xl text-base font-black text-gray-900 focus:bg-white"
                   />
 

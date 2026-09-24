@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { DataService } from '@/lib/dataService';
 import { Expense, ExpenseCategory } from '@/types/database';
-import { formatRupiah, formatTanggal } from '@/lib/utils';
+import { formatRupiah, formatTanggal, formatRupiahInput, parseRupiahInput } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 
 export default function PengeluaranPage() {
@@ -155,13 +155,12 @@ export default function PengeluaranPage() {
                 Rp
               </span>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 required
-                min={100}
-                step={500}
                 placeholder="0"
-                value={nominal || ''}
-                onChange={(e) => setNominal(Number(e.target.value))}
+                value={formatRupiahInput(nominal)}
+                onChange={(e) => setNominal(parseRupiahInput(e.target.value))}
                 className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-surface-border rounded-2xl text-lg font-black text-rose-600 focus:bg-white focus:ring-2 focus:ring-rose-200 focus:border-rose-500"
               />
             </div>

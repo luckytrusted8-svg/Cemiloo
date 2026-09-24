@@ -17,6 +17,28 @@ export function formatRupiah(amount: number): string {
   }).format(amount);
 }
 
+/**
+ * Format angka menjadi format ribuan bertitik Indonesia (misal: 20000 -> "20.000").
+ * Jika 0 atau kosong, menghasilkan string kosong "" agar input form bersih dan 0 bisa dihapus.
+ */
+export function formatRupiahInput(val: number | string | undefined | null): string {
+  if (val === '' || val === undefined || val === null || val === 0 || val === '0') {
+    return '';
+  }
+  const digits = String(val).replace(/\D/g, '');
+  if (!digits) return '';
+  return Number(digits).toLocaleString('id-ID');
+}
+
+/**
+ * Mengubah string bertitik kembali menjadi number murni (misal: "20.000" -> 20000).
+ */
+export function parseRupiahInput(val: string): number {
+  if (!val) return 0;
+  const digits = val.replace(/\D/g, '');
+  return digits ? Number(digits) : 0;
+}
+
 export function formatTanggal(dateStr: string | Date): string {
   try {
     const d = new Date(dateStr);

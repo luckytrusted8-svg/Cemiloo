@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { DataService } from '@/lib/dataService';
 import { Product, Category } from '@/types/database';
-import { formatRupiah } from '@/lib/utils';
+import { formatRupiah, formatRupiahInput, parseRupiahInput } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 
 export default function ProdukPage() {
@@ -78,7 +78,7 @@ export default function ProdukPage() {
       category_id: categories[0]?.id || '',
       harga_jual: 0,
       harga_modal: 0,
-      stok: 20,
+      stok: 0,
       stok_minimum: 5,
       is_active: true,
     });
@@ -497,12 +497,12 @@ export default function ProdukPage() {
                     Harga Jual (Rp)
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     required
-                    min={0}
-                    step={500}
-                    value={formData.harga_jual}
-                    onChange={(e) => setFormData({ ...formData, harga_jual: Number(e.target.value) })}
+                    placeholder="0"
+                    value={formatRupiahInput(formData.harga_jual)}
+                    onChange={(e) => setFormData({ ...formData, harga_jual: parseRupiahInput(e.target.value) })}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-surface-border rounded-xl text-sm font-bold text-cemiloo-700 focus:bg-white focus:ring-2 focus:ring-sky-200 focus:border-cemiloo-500"
                   />
                 </div>
@@ -511,12 +511,11 @@ export default function ProdukPage() {
                     Harga Modal / HPP (Rp)
                   </label>
                   <input
-                    type="number"
-                    required
-                    min={0}
-                    step={500}
-                    value={formData.harga_modal}
-                    onChange={(e) => setFormData({ ...formData, harga_modal: Number(e.target.value) })}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={formatRupiahInput(formData.harga_modal)}
+                    onChange={(e) => setFormData({ ...formData, harga_modal: parseRupiahInput(e.target.value) })}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-surface-border rounded-xl text-sm font-medium focus:bg-white focus:ring-2 focus:ring-sky-200 focus:border-cemiloo-500"
                   />
                 </div>
@@ -540,11 +539,14 @@ export default function ProdukPage() {
                     Stok Saat Ini
                   </label>
                   <input
-                    type="number"
-                    required
-                    min={0}
-                    value={formData.stok}
-                    onChange={(e) => setFormData({ ...formData, stok: Number(e.target.value) })}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={formData.stok === 0 ? '' : formData.stok}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, '');
+                      setFormData({ ...formData, stok: v ? Number(v) : 0 });
+                    }}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-surface-border rounded-xl text-sm font-bold text-gray-900 focus:bg-white"
                   />
                 </div>
@@ -553,11 +555,14 @@ export default function ProdukPage() {
                     Batas Stok Menipis
                   </label>
                   <input
-                    type="number"
-                    required
-                    min={1}
-                    value={formData.stok_minimum}
-                    onChange={(e) => setFormData({ ...formData, stok_minimum: Number(e.target.value) })}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="5"
+                    value={formData.stok_minimum === 0 ? '' : formData.stok_minimum}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, '');
+                      setFormData({ ...formData, stok_minimum: v ? Number(v) : 0 });
+                    }}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-surface-border rounded-xl text-sm font-medium focus:bg-white"
                   />
                 </div>
