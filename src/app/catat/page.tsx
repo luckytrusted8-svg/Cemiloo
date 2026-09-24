@@ -68,6 +68,10 @@ export default function CatatPenjualanPage() {
 
   useEffect(() => {
     loadData();
+    const unsubscribe = DataService.subscribeToRealtimeChanges(() => {
+      loadData();
+    });
+    return () => unsubscribe();
   }, []);
 
   // Filtered Products

@@ -63,6 +63,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadData();
+    const unsubscribe = DataService.subscribeToRealtimeChanges(() => {
+      loadData(true);
+    });
+    return () => unsubscribe();
   }, [loadData]);
 
   const handleQuickRestock = async (product: Product, amount: number) => {

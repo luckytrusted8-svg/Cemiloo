@@ -391,71 +391,103 @@ BEGIN
 
     -- Basreng Series
     INSERT INTO public.products (name, category_id, harga_jual, harga_modal, stok, stok_minimum) VALUES
-        ('Basreng Original', cat_basreng, 5000, 3200, 45, 10),
-        ('Basreng Pedas', cat_basreng, 5000, 3200, 50, 10),
-        ('Basreng Daun Jeruk', cat_basreng, 6000, 3800, 40, 10),
-        ('Basreng BBQ', cat_basreng, 6000, 3800, 35, 8),
-        ('Basreng Keju', cat_basreng, 6000, 3800, 30, 8),
-        ('Basreng Extra Pedas', cat_basreng, 7000, 4200, 40, 10);
+        ('Basreng Original', cat_basreng, 5000, 3200, 0, 5),
+        ('Basreng Pedas', cat_basreng, 5000, 3200, 0, 5),
+        ('Basreng Daun Jeruk', cat_basreng, 6000, 3800, 0, 5),
+        ('Basreng BBQ', cat_basreng, 6000, 3800, 0, 5),
+        ('Basreng Keju', cat_basreng, 6000, 3800, 0, 5),
+        ('Basreng Extra Pedas', cat_basreng, 7000, 4200, 0, 5);
 
     -- Makaroni Series
     INSERT INTO public.products (name, category_id, harga_jual, harga_modal, stok, stok_minimum) VALUES
-        ('Makaroni Original', cat_makaroni, 5000, 3000, 40, 10),
-        ('Makaroni Pedas', cat_makaroni, 5000, 3000, 50, 10),
-        ('Makaroni Balado', cat_makaroni, 5500, 3300, 35, 8),
-        ('Makaroni BBQ', cat_makaroni, 5500, 3300, 30, 8),
-        ('Makaroni Keju', cat_makaroni, 6000, 3600, 25, 8),
-        ('Makaroni Extra Pedas', cat_makaroni, 7000, 4000, 30, 10);
+        ('Makaroni Original', cat_makaroni, 5000, 3000, 0, 5),
+        ('Makaroni Pedas', cat_makaroni, 5000, 3000, 0, 5),
+        ('Makaroni Balado', cat_makaroni, 5500, 3300, 0, 5),
+        ('Makaroni BBQ', cat_makaroni, 5500, 3300, 0, 5),
+        ('Makaroni Keju', cat_makaroni, 6000, 3600, 0, 5),
+        ('Makaroni Extra Pedas', cat_makaroni, 7000, 4000, 0, 5);
 
     -- Crispy Series
     INSERT INTO public.products (name, category_id, harga_jual, harga_modal, stok, stok_minimum) VALUES
-        ('Usus Crispy', cat_crispy, 6000, 3800, 30, 8),
-        ('Keripik Kaca', cat_crispy, 5000, 3000, 25, 6),
-        ('Keripik Singkong', cat_crispy, 5000, 3000, 30, 6),
-        ('Keripik Pisang', cat_crispy, 6000, 3800, 25, 6),
-        ('Keripik Pisang Coklat', cat_crispy, 7000, 4500, 20, 5),
-        ('Keripik Pisang Coklat Keju', cat_crispy, 8000, 5200, 20, 5),
-        ('Kacang Atom', cat_crispy, 5000, 3200, 30, 6),
-        ('Pilus Original', cat_crispy, 5000, 3000, 25, 6),
-        ('Pilus Pedas', cat_crispy, 5000, 3000, 25, 6),
-        ('Ciki Pedas', cat_crispy, 5000, 3100, 35, 8),
-        ('Seblak Kering', cat_crispy, 6000, 3700, 30, 8);
+        ('Usus Crispy', cat_crispy, 6000, 3800, 0, 5),
+        ('Keripik Kaca', cat_crispy, 5000, 3000, 0, 5),
+        ('Keripik Singkong', cat_crispy, 5000, 3000, 0, 5),
+        ('Keripik Pisang', cat_crispy, 6000, 3800, 0, 5),
+        ('Keripik Pisang Coklat', cat_crispy, 7000, 4500, 0, 5),
+        ('Keripik Pisang Coklat Keju', cat_crispy, 8000, 5200, 0, 5),
+        ('Kacang Atom', cat_crispy, 5000, 3200, 0, 5),
+        ('Pilus Original', cat_crispy, 5000, 3000, 0, 5),
+        ('Pilus Pedas', cat_crispy, 5000, 3000, 0, 5),
+        ('Ciki Pedas', cat_crispy, 5000, 3100, 0, 5),
+        ('Seblak Kering', cat_crispy, 6000, 3700, 0, 5);
 
     -- Sweet Series
     INSERT INTO public.products (name, category_id, harga_jual, harga_modal, stok, stok_minimum) VALUES
-        ('Makaroni Coklat', cat_sweet, 6000, 3700, 20, 5),
-        ('Choco Crunch', cat_sweet, 7000, 4400, 25, 6),
-        ('Choco Cookies', cat_sweet, 7000, 4400, 25, 6),
-        ('Brownies Bite', cat_sweet, 8000, 5000, 20, 5);
+        ('Makaroni Coklat', cat_sweet, 6000, 3700, 0, 5),
+        ('Choco Crunch', cat_sweet, 7000, 4400, 0, 5),
+        ('Choco Cookies', cat_sweet, 7000, 4400, 0, 5),
+        ('Brownies Bite', cat_sweet, 8000, 5000, 0, 5);
 
     -- Cheese Series
     INSERT INTO public.products (name, category_id, harga_jual, harga_modal, stok, stok_minimum) VALUES
-        ('Cheese Ball', cat_cheese, 7000, 4400, 25, 6),
-        ('Cheese Stick', cat_cheese, 6000, 3800, 25, 6),
-        ('Potato Cheese', cat_cheese, 8000, 5200, 20, 5),
-        ('Makaroni Cheese', cat_cheese, 6000, 3800, 20, 5),
-        ('Basreng Cheese', cat_cheese, 7000, 4400, 25, 6);
+        ('Cheese Ball', cat_cheese, 7000, 4400, 0, 5),
+        ('Cheese Stick', cat_cheese, 6000, 3800, 0, 5),
+        ('Potato Cheese', cat_cheese, 8000, 5200, 0, 5),
+        ('Makaroni Cheese', cat_cheese, 6000, 3800, 0, 5),
+        ('Basreng Cheese', cat_cheese, 7000, 4400, 0, 5);
 
     -- Minuman Segar
     INSERT INTO public.products (name, category_id, harga_jual, harga_modal, stok, stok_minimum) VALUES
-        ('Es Teh Manis', cat_minuman, 4000, 1800, 80, 15),
-        ('Teh Lemon', cat_minuman, 5000, 2500, 40, 10),
-        ('Es Coklat', cat_minuman, 7000, 4000, 35, 8),
-        ('Coklat Oreo', cat_minuman, 8000, 4800, 30, 8),
-        ('Matcha Latte', cat_minuman, 8000, 4800, 30, 8),
-        ('Taro Latte', cat_minuman, 8000, 4800, 25, 8),
-        ('Thai Tea', cat_minuman, 7000, 4000, 35, 8),
-        ('Milo Ice', cat_minuman, 7000, 4200, 35, 8),
-        ('Strawberry Milk', cat_minuman, 8000, 4800, 30, 8),
-        ('Lemon Tea', cat_minuman, 6000, 3000, 30, 8);
+        ('Es Teh Manis', cat_minuman, 4000, 1800, 0, 5),
+        ('Teh Lemon', cat_minuman, 5000, 2500, 0, 5),
+        ('Es Coklat', cat_minuman, 7000, 4000, 0, 5),
+        ('Coklat Oreo', cat_minuman, 8000, 4800, 0, 5),
+        ('Matcha Latte', cat_minuman, 8000, 4800, 0, 5),
+        ('Taro Latte', cat_minuman, 8000, 4800, 0, 5),
+        ('Thai Tea', cat_minuman, 7000, 4000, 0, 5),
+        ('Milo Ice', cat_minuman, 7000, 4200, 0, 5),
+        ('Strawberry Milk', cat_minuman, 8000, 4800, 0, 5),
+        ('Lemon Tea', cat_minuman, 6000, 3000, 0, 5);
 
     -- Paket Hemat
     INSERT INTO public.products (name, category_id, harga_jual, harga_modal, stok, stok_minimum) VALUES
-        ('Paket Santai (2 snack)', cat_paket, 9000, 6000, 50, 10),
-        ('Paket Ngemil (3 snack)', cat_paket, 13000, 8800, 40, 10),
-        ('Paket Kenyang (4 snack)', cat_paket, 17000, 11500, 30, 8),
-        ('Paket Nongkrong (3 snack + 1 min)', cat_paket, 18000, 12000, 30, 8),
-        ('Paket Bestie (5 snack + 2 min)', cat_paket, 30000, 20000, 25, 5),
-        ('Paket Ramean (8 snack + 3 min)', cat_paket, 45000, 30000, 20, 5);
+        ('Paket Santai (2 snack)', cat_paket, 9000, 6000, 0, 5),
+        ('Paket Ngemil (3 snack)', cat_paket, 13000, 8800, 0, 5),
+        ('Paket Kenyang (4 snack)', cat_paket, 17000, 11500, 0, 5),
+        ('Paket Nongkrong (3 snack + 1 min)', cat_paket, 18000, 12000, 0, 5),
+        ('Paket Bestie (5 snack + 2 min)', cat_paket, 30000, 20000, 0, 5),
+        ('Paket Ramean (8 snack + 3 min)', cat_paket, 45000, 30000, 0, 5);
 
 END $$;
+
+-- --------------------------------------------------------
+-- 9. AKTIFKAN SUPABASE REALTIME REPLICATION (HP <-> LAPTOP REALTIME)
+-- --------------------------------------------------------
+DO $$
+BEGIN
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.categories;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.products;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.expense_categories;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.expenses;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.transactions;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.transaction_items;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+END $$;
+

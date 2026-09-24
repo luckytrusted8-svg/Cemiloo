@@ -49,6 +49,10 @@ export default function RiwayatTransaksiPage() {
 
   useEffect(() => {
     loadData();
+    const unsubscribe = DataService.subscribeToRealtimeChanges(() => {
+      loadData();
+    });
+    return () => unsubscribe();
   }, []);
 
   // Combine and sort

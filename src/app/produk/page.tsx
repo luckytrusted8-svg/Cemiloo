@@ -65,6 +65,10 @@ export default function ProdukPage() {
 
   useEffect(() => {
     loadData();
+    const unsubscribe = DataService.subscribeToRealtimeChanges(() => {
+      loadData();
+    });
+    return () => unsubscribe();
   }, []);
 
   const openAddModal = () => {

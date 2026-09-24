@@ -54,6 +54,10 @@ export default function PengeluaranPage() {
 
   useEffect(() => {
     loadData();
+    const unsubscribe = DataService.subscribeToRealtimeChanges(() => {
+      loadData();
+    });
+    return () => unsubscribe();
   }, []);
 
   const handleSubmitExpense = async (e: React.FormEvent) => {

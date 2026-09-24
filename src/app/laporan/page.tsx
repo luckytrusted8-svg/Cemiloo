@@ -11,11 +11,15 @@ import {
   Wallet,
   Percent,
   Search,
+  RotateCcw,
+  AlertTriangle,
+  FileDown,
 } from 'lucide-react';
 import { DataService } from '@/lib/dataService';
 import { Transaction, Expense, ProductMargin } from '@/types/database';
 import { formatRupiah, formatTanggal, exportToCSV } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
+import { exportBeautifulExcelReport, exportEmptyTemplateExcel } from '@/lib/excelExport';
 
 export default function LaporanPage() {
   const { success, error } = useToast();
@@ -55,6 +59,10 @@ export default function LaporanPage() {
 
   useEffect(() => {
     loadData();
+    const unsubscribe = DataService.subscribeToRealtimeChanges(() => {
+      loadData();
+    });
+    return () => unsubscribe();
   }, []);
 
   // Filter Transactions by Date Range
@@ -101,20 +109,56 @@ export default function LaporanPage() {
     );
   }, [margins, searchMargin]);
 
-  // Export to CSV Handlers
+  // Export to Excel & CSV Handlers
+  const handleExportExcel = () => {
+    exportBeautifulExcelReport({
+      startDate,
+      endDate,
+      totalMasuk,
+      totalKeluar,
+      untungBersih,
+      transactions: filteredTransactions,
+      expenses: filteredExpenses,
+      margins,
+    });
+    success('Laporan Excel profesional (.xls) berhasil di-download!');
+  };
+
+  const handleExportTemplate = () => {
+    exportEmptyTemplateExcel(margins);
+    success('Template Laporan Kosong (.xls) siap diisi berhasil di-download!');
+  };
+
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+
+  const handleConfirmReset = async () => {
+    setIsResetting(true);
+    try {
+      await DataService.resetAllFinancialDataToZero();
+      await loadData();
+      setShowResetModal(false);
+      success('Semua transaksi & biaya telah dikosongkan, stok dimulai dari nol!');
+    } catch (err: any) {
+      error('Gagal mereset data: ' + err.message);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   const handleExportTransactionsCSV = () => {
-    const headers = ['ID', 'Tipe', 'Tanggal', 'Keterangan', 'Total Nominal (Rp)'];
+    const headers = ['No', 'Tipe', 'Tanggal', 'Keterangan', 'Total Nominal (Rp)'];
     const rows = [
-      ...filteredTransactions.map((t) => [
-        t.id,
-        t.type === 'masuk' ? 'Pemasukan (Penjualan)' : 'Pengeluaran',
+      ...filteredTransactions.map((t, idx) => [
+        idx + 1,
+        'Pemasukan (Penjualan)',
         formatTanggal(t.tanggal),
-        t.keterangan || '-',
+        t.keterangan || 'Penjualan Kasir',
         t.total_nominal,
       ]),
-      ...filteredExpenses.map((e) => [
-        e.id,
-        'Pengeluaran',
+      ...filteredExpenses.map((e, idx) => [
+        filteredTransactions.length + idx + 1,
+        'Pengeluaran Operasional',
         formatTanggal(e.tanggal),
         `${e.category?.name || 'Biaya'}: ${e.keterangan || '-'}`,
         e.nominal,
@@ -127,6 +171,7 @@ export default function LaporanPage() {
 
   const handleExportMarginsCSV = () => {
     const headers = [
+      'No',
       'Nama Produk',
       'Kategori',
       'Harga Modal (Rp)',
@@ -136,7 +181,8 @@ export default function LaporanPage() {
       'Stok',
       'Status',
     ];
-    const rows = filteredMargins.map((m) => [
+    const rows = filteredMargins.map((m, idx) => [
+      idx + 1,
       m.name,
       m.category_name,
       m.harga_modal,
@@ -161,27 +207,63 @@ export default function LaporanPage() {
             Laporan Keuangan & Margin
           </h1>
           <p className="text-xs text-gray-500">
-            Analisis profitabilitas, arus kas, dan export data ke Excel/CSV
+            Analisis arus kas, cetak template Excel resmi, dan kelola data bersih
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {activeTab === 'ringkasan' ? (
-            <button
-              onClick={handleExportTransactionsCSV}
-              className="btn-touch px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-1.5 active:scale-95 transition"
-            >
-              <Download className="w-4 h-4" />
-              Export Laporan
-            </button>
+            <>
+              <button
+                onClick={handleExportExcel}
+                className="btn-touch px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+                title="Download laporan Excel resmi berformat rapi (.xls)"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Export Excel (.xls)
+              </button>
+              <button
+                onClick={handleExportTemplate}
+                className="btn-touch px-3 py-2 text-xs font-bold rounded-xl bg-cemiloo-50 border border-cemiloo-200 text-cemiloo-700 hover:bg-cemiloo-100 shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+                title="Download template kosong Excel siap pakai (.xls)"
+              >
+                <FileDown className="w-3.5 h-3.5" />
+                Template Kosong (.xls)
+              </button>
+              <button
+                onClick={handleExportTransactionsCSV}
+                className="btn-touch px-2.5 py-2 text-xs font-bold rounded-xl bg-white border border-surface-border text-gray-700 hover:bg-gray-50 shadow-sm flex items-center gap-1 active:scale-95 transition"
+                title="Download data mentah CSV (.csv)"
+              >
+                <Download className="w-3.5 h-3.5" />
+                CSV
+              </button>
+              <button
+                onClick={() => setShowResetModal(true)}
+                className="btn-touch px-3 py-2 text-xs font-bold rounded-xl bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+                title="Bersihkan semua transaksi dan nol-kan semua data"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset ke Nol
+              </button>
+            </>
           ) : (
-            <button
-              onClick={handleExportMarginsCSV}
-              className="btn-touch px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-1.5 active:scale-95 transition"
-            >
-              <Download className="w-4 h-4" />
-              Export Margin
-            </button>
+            <>
+              <button
+                onClick={handleExportExcel}
+                className="btn-touch px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Export Excel Lengkap
+              </button>
+              <button
+                onClick={handleExportMarginsCSV}
+                className="btn-touch px-3.5 py-2 text-xs font-bold rounded-xl bg-white border border-surface-border text-gray-700 hover:bg-gray-50 shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+              >
+                <Download className="w-4 h-4" />
+                Export Margin CSV
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -391,6 +473,52 @@ export default function LaporanPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL KONFIRMASI RESET SEMUA DATA KE NOL */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl p-5 max-w-sm w-full shadow-2xl border border-rose-100 space-y-4 text-center animate-in zoom-in-95 duration-150">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto shadow-inner">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <div>
+              <h3 className="text-base font-black text-gray-900">
+                Kosongkan & Mulai Dari Nol?
+              </h3>
+              <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                Tindakan ini akan <strong>menghapus semua riwayat transaksi</strong>, <strong>biaya pengeluaran</strong>, dan <strong>menyetel stok semua produk menjadi 0</strong>. Menu produk tetap tersimpan.
+              </p>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setShowResetModal(false)}
+                disabled={isResetting}
+                className="flex-1 py-2.5 rounded-xl border border-surface-border text-xs font-bold text-gray-600 hover:bg-gray-50 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmReset}
+                disabled={isResetting}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-200 transition flex items-center justify-center gap-1.5"
+              >
+                {isResetting ? (
+                  'Mereset...'
+                ) : (
+                  <>
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Ya, Nol-kan Semua
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

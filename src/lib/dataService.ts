@@ -26,14 +26,30 @@ const STORAGE_KEYS = {
   EXPENSES: 'cemiloo_expenses',
 };
 
-const CLEAN_FLAG = 'cemiloo_clean_reset_zero_v2';
+const CLEAN_FLAG = 'cemiloo_clean_reset_zero_v4';
 
-// Auto-reset existing financial transactions & expenses to zero on first load
+// Auto-reset existing financial transactions & expenses, and reset products stock to 0
 if (typeof window !== 'undefined') {
   if (!localStorage.getItem(CLEAN_FLAG)) {
     localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
     localStorage.removeItem(STORAGE_KEYS.EXPENSES);
+    localStorage.removeItem(STORAGE_KEYS.PRODUCTS); // Forces products to initialize with stok = 0
     localStorage.setItem(CLEAN_FLAG, 'true');
+
+    // Also auto-reset Supabase table stock & transactions to zero if configured
+    if (isSupabaseConfigured && supabase) {
+      const client = supabase;
+      setTimeout(async () => {
+        try {
+          await client.from('products').update({ stok: 0 }).neq('id', '00000000-0000-0000-0000-000000000000');
+          await client.from('transaction_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+          await client.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+          await client.from('expenses').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        } catch (err) {
+          console.warn('Auto reset zero Supabase attempt:', err);
+        }
+      }, 300);
+    }
   }
 }
 
@@ -587,9 +603,50 @@ export const DataService = {
       await supabase.from('transaction_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
       await supabase.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
       await supabase.from('expenses').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('products').update({ stok: 0 }).neq('id', '00000000-0000-0000-0000-000000000000');
     }
     setLocal(STORAGE_KEYS.TRANSACTIONS, []);
     setLocal(STORAGE_KEYS.EXPENSES, []);
+    setLocal(STORAGE_KEYS.PRODUCTS, initialProducts);
+  },
+
+  // ----------------------------------------------------
+  // REALTIME SYNCHRONIZATION (HP <-> LAPTOP)
+  // ----------------------------------------------------
+  subscribeToRealtimeChanges(callback: () => void): () => void {
+    if (typeof window === 'undefined') return () => {};
+
+    // 1. Cross-tab storage sync fallback
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key?.startsWith('cemiloo_')) {
+        callback();
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+
+    // 2. Supabase Realtime (Device-to-device: Phone <-> Laptop)
+    if (isSupabaseConfigured && supabase) {
+      const client = supabase;
+      const channel = client
+        .channel('cemiloo_realtime_broadcast')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public' },
+          () => {
+            callback();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        window.removeEventListener('storage', handleStorage);
+        client.removeChannel(channel);
+      };
+    }
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
   },
 };
 
