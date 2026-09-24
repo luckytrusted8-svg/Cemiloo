@@ -38,6 +38,7 @@ export default function RootLayout({
     <html lang="id">
       <head>
         <link rel="apple-touch-icon" href="/assets/cemiloo-logo.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="font-sans antialiased text-gray-900 bg-slate-50 min-h-screen">
         <AuthProvider>
